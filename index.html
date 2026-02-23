@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoCrafter – Subunternehmer Registrierung</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #F6521D;
+            --orange-hover: #e04510;
+            --orange-light: #fff4ef;
+            --orange-bg: #fef0ea;
+            --dark: #1a1a2e;
+            --text: #333;
+            --text-light: #666;
+            --text-muted: #999;
+            --border: #e2e2e2;
+            --bg: #f7f7f9;
+            --white: #fff;
+            --green: #22c55e;
+            --green-light: #f0fdf4;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --blue-light: #eff6ff;
+            --yellow: #f59e0b;
+            --yellow-light: #fffbeb;
+            --radius: 10px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* === NAV === */
+        .nav {
+            background: var(--white);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: var(--dark); }
+        .logo span { color: var(--orange); }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links a {
+            padding: 8px 16px; border-radius: 8px; text-decoration: none;
+            font-size: 13px; font-weight: 600; color: var(--text-light); transition: all 0.2s;
+        }
+        .nav-links a:hover { background: var(--orange-light); color: var(--orange); }
+        .nav-links a.active { background: var(--orange); color: white; }
+        .nav-toggle {
+            padding: 8px 18px; border-radius: 8px; border: 2px solid var(--border);
+            font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+            background: var(--white); color: var(--text-light); transition: all 0.2s;
+        }
+        .nav-toggle:hover { border-color: var(--orange); color: var(--orange); }
+        .nav-toggle.admin-active { background: var(--dark); color: white; border-color: var(--dark); }
+
+        /* === SCREENS === */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* === LANDING === */
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, #0f1a3a 100%);
+            color: white; padding: 80px 40px; text-align: center;
+        }
+        .hero h1 { font-size: 42px; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+        .hero h1 span { color: var(--orange); }
+        .hero p { font-size: 18px; opacity: 0.8; max-width: 600px; margin: 0 auto 32px; line-height: 1.6; }
+        .hero-stats { display: flex; justify-content: center; gap: 48px; margin-bottom: 40px; }
+        .hero-stat { text-align: center; }
+        .hero-stat .num { font-size: 32px; font-weight: 800; color: var(--orange); }
+        .hero-stat .label { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+        .btn-cta {
+            display: inline-block; padding: 16px 40px; background: var(--orange); color: white;
+            border: none; border-radius: var(--radius); font-size: 16px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.2s; text-decoration: none;
+        }
+        .btn-cta:hover { background: var(--orange-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(246,82,29,0.3); }
+
+        .trust-bar {
+            background: var(--white); padding: 24px; text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .trust-bar span { font-size: 13px; color: var(--text-muted); margin: 0 20px; font-weight: 500; }
+
+        /* === REGISTRATION FORM === */
+        .reg-container {
+            max-width: 560px; margin: 40px auto; padding: 0 20px;
+        }
+        .reg-card {
+            background: var(--white); border-radius: 16px; padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .reg-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+        .reg-card .desc { color: var(--text-light); font-size: 14px; margin-bottom: 28px; }
+        .field { margin-bottom: 18px; }
+        .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field label .req { color: var(--red); }
+        .field input, .field select {
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 8px;
+            font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s;
+        }
+        .field input:focus, .field select:focus { border-color: var(--orange); }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .field .err { color: var(--red); font-size: 12px; margin-top: 4px; display: none; }
+        .field input.invalid { border-color: var(--red); }
+
+        .gewerk-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .gewerk-chip {
+            padding: 8px 16px; border: 2px solid var(--border); border-radius: 20px;
+            font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+            user-select: none; font-family: inherit;
+        }
+        .gewerk-chip:hover { border-color: var(--orange); }
+        .gewerk-chip.selected { background: var(--orange); color: white; border-color: var(--orange); }
+
+        .slider-container { position: relative; }
+        .slider-container input[type="range"] {
+            width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px;
+            background: var(--border); outline: none; border: none; padding: 0;
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+            background: var(--orange); cursor: pointer; border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .slider-value { text-align: center; font-weight: 700; color: var(--orange); font-size: 18px; margin-top: 8px; }
+
+        .consent-box {
+            background: var(--bg); padding: 16px; border-radius: 8px; margin: 20px 0;
+            font-size: 13px; color: var(--text-light); line-height: 1.5;
+        }
+        .consent-box label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-weight: 400; }
+        .consent-box input[type="checkbox"] { margin-top: 3px; accent-color: var(--orange); }
+
+        .btn-primary {
+            width: 100%; padding: 14px; background: var(--orange); color: white; border: none;
+            border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+        }
+        .btn-primary:hover { background: var(--orange-hover); }
+        .btn-secondary {
+            padding: 10px 20px; background: var(--bg); color: var(--text); border: 2px solid var(--border);
+            border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
+
+        /* === DASHBOARD === */
+        .dash-layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 57px); }
+        .sidebar {
+            background: var(--white); border-right: 1px solid var(--border); padding: 24px 16px;
+        }
+        .sidebar-section { margin-bottom: 24px; }
+        .sidebar-section h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; padding: 0 12px; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
+            transition: all 0.15s; color: var(--text-light);
+        }
+        .sidebar-item:hover { background: var(--orange-light); color: var(--orange); }
+        .sidebar-item.active { background: var(--orange-light); color: var(--orange); font-weight: 600; }
+        .sidebar-item .badge {
+            margin-left: auto; background: var(--orange); color: white;
+            font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+        }
+        .sidebar-item .icon { width: 20px; text-align: center; }
+
+        .dash-main { padding: 28px 32px; overflow-y: auto; }
+        .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .dash-header h2 { font-size: 22px; font-weight: 700; }
+
+        /* === PROFILE COMPLETION === */
+        .profile-banner {
+            background: linear-gradient(135deg, var(--orange-bg) 0%, #fff8f5 100%);
+            border: 2px solid #fdd; border-radius: 12px; padding: 24px;
+            margin-bottom: 24px; display: flex; align-items: center; gap: 20px;
+        }
+        .profile-progress-ring { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
+        .profile-progress-ring svg { transform: rotate(-90deg); }
+        .profile-progress-ring .pct {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; font-size: 16px; font-weight: 800; color: var(--orange);
+        }
+        .profile-banner-text h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .profile-banner-text p { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+        .profile-banner .btn-fill {
+            margin-left: auto; padding: 10px 20px; background: var(--orange); color: white;
+            border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; font-family: inherit; white-space: nowrap;
+        }
+
+        /* === PROJECT CARDS === */
+        .project-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .project-card {
+            background: var(--white); border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border); transition: all 0.2s; cursor: pointer;
+        }
+        .project-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .project-card.blurred .project-card-body { filter: blur(4px); pointer-events: none; user-select: none; }
+        .project-card-img {
+            height: 140px; background: linear-gradient(135deg, #ddd, #eee);
+            position: relative; overflow: hidden;
+        }
+        .project-card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .project-card-img .tag {
+            position: absolute; top: 10px; left: 10px; background: var(--orange);
+            color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+        }
+        .project-card-body { padding: 16px; }
+        .project-card-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .project-card-body .meta { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+        .project-card-body .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+        .project-card-body .chip {
+            padding: 3px 8px; background: var(--bg); border-radius: 4px;
+            font-size: 11px; font-weight: 500; color: var(--text-light);
+        }
+        .project-card-body .budget { font-size: 14px; font-weight: 700; color: var(--orange); }
+
+        .lock-overlay {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.85);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 5; border-radius: 12px;
+        }
+        .lock-overlay .lock-icon { font-size: 32px; margin-bottom: 8px; }
+        .lock-overlay p { font-size: 13px; color: var(--text-light); font-weight: 500; text-align: center; padding: 0 20px; }
+        .lock-overlay .btn-unlock {
+            margin-top: 10px; padding: 8px 16px; background: var(--orange); color: white;
+            border: none; border-radius: 6px; font-size: 12px; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+        }
+
+        /* === PROFILE FORM MODAL === */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 200; justify-content: center; align-items: flex-start; padding: 40px 20px;
+            overflow-y: auto;
+        }
+        .modal-overlay.visible { display: flex; }
+        .modal {
+            background: var(--white); border-radius: 16px; width: 100%; max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+        }
+        .modal-header {
+            padding: 24px 28px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-header h2 { font-size: 18px; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); padding: 4px; }
+        .modal-body { padding: 28px; }
+        .modal-footer { padding: 16px 28px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+        .profile-step-tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+        .profile-step-tab {
+            flex: 1; padding: 10px; text-align: center; border-radius: 8px;
+            font-size: 12px; font-weight: 600; color: var(--text-muted);
+            background: var(--bg); cursor: pointer; transition: all 0.2s;
+        }
+        .profile-step-tab.active { background: var(--orange); color: white; }
+        .profile-step-tab.done { background: var(--green-light); color: var(--green); }
+
+        /* Upload area */
+        .upload-area {
+            border: 2px dashed var(--border); border-radius: 10px; padding: 32px;
+            text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+        }
+        .upload-area:hover { border-color: var(--orange); background: var(--orange-light); }
+        .upload-area .icon { font-size: 28px; margin-bottom: 6px; }
+        .upload-area p { font-size: 13px; color: var(--text-light); }
+        .upload-area p strong { color: var(--orange); }
+        .uploaded-file {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--green-light); padding: 10px 14px; border-radius: 8px;
+            font-size: 13px; margin-bottom: 8px;
+        }
+        .uploaded-file .remove { color: var(--red); cursor: pointer; font-weight: 700; }
+
+        /* === NUDGE TOAST === */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; background: var(--dark); color: white;
+            padding: 16px 24px; border-radius: 12px; display: none; align-items: center; gap: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 300; max-width: 400px;
+            animation: slideUp 0.3s ease;
+        }
+        .toast.visible { display: flex; }
+        .toast .toast-icon { font-size: 24px; }
+        .toast .toast-text { font-size: 13px; line-height: 1.4; }
+        .toast .toast-text strong { color: var(--orange); }
+        .toast .toast-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; margin-left: 8px; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* === APPLY MODAL === */
+        .completeness-checklist { margin: 16px 0; }
+        .checklist-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 0;
+            border-bottom: 1px solid var(--bg); font-size: 14px;
+        }
+        .checklist-item .check { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+        .checklist-item .check.ok { background: var(--green); color: white; }
+        .checklist-item .check.missing { background: var(--red); color: white; }
+
+        /* === ADMIN DASHBOARD === */
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th {
+            text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+            border-bottom: 2px solid var(--border); background: var(--bg);
+        }
+        .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--bg); font-size: 13px; }
+        .admin-table tr:hover td { background: var(--orange-light); }
+        .status-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+        }
+        .status-badge.new { background: var(--blue-light); color: var(--blue); }
+        .status-badge.incomplete { background: var(--yellow-light); color: var(--yellow); }
+        .status-badge.ready { background: var(--green-light); color: var(--green); }
+        .status-badge.approved { background: var(--green-light); color: var(--green); }
+        .status-badge.rejected { background: #fef2f2; color: var(--red); }
+
+        .completeness-bar { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }
+        .completeness-bar .fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+        .admin-card {
+            background: var(--white); border-radius: 12px; padding: 24px;
+            border: 1px solid var(--border); margin-bottom: 16px;
+        }
+        .admin-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+        .admin-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .admin-stat {
+            background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; text-align: center;
+        }
+        .admin-stat .num { font-size: 28px; font-weight: 800; }
+        .admin-stat .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .admin-stat.orange .num { color: var(--orange); }
+        .admin-stat.green .num { color: var(--green); }
+        .admin-stat.blue .num { color: var(--blue); }
+        .admin-stat.yellow .num { color: var(--yellow); }
+
+        .btn-sm {
+            padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+            cursor: pointer; font-family: inherit; border: none; transition: all 0.2s;
+        }
+        .btn-sm.green { background: var(--green-light); color: var(--green); }
+        .btn-sm.green:hover { background: var(--green); color: white; }
+        .btn-sm.red { background: #fef2f2; color: var(--red); }
+        .btn-sm.red:hover { background: var(--red); color: white; }
+        .btn-sm.blue { background: var(--blue-light); color: var(--blue); }
+        .btn-sm.blue:hover { background: var(--blue); color: white; }
+
+        @media (max-width: 768px) {
+            .dash-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .project-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 28px; }
+            .hero-stats { flex-direction: column; gap: 16px; }
+            .admin-stat-grid { grid-template-columns: 1fr 1fr; }
+            .field-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<div class="nav">
+    <div class="logo">Co<span>Crafter</span></div>
+    <div class="nav-links" id="navLinks">
+        <a href="#" class="active" data-screen="landing" onclick="showScreen('landing')">Start</a>
+    </div>
+    <button class="nav-toggle" id="viewToggle" onclick="toggleView()" style="display:none;">Admin-Ansicht</button>
+</div>
+
+<!-- ============ SCREEN: LANDING ============ -->
+<div class="screen active" id="screen-landing">
+    <div class="hero">
+        <h1>Finde passende <span>Bauprojekte</span><br>in deiner Nähe</h1>
+        <p>Registriere dich kostenlos, erstelle dein Profil und bewirb dich auf Projekte, die zu deinem Gewerk passen.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="num">3.000+</div><div class="label">Aktive Unternehmen</div></div>
+            <div class="hero-stat"><div class="num">850+</div><div class="label">Projekte / Monat</div></div>
+            <div class="hero-stat"><div class="num">25+</div><div class="label">Gewerke</div></div>
+        </div>
+        <button class="btn-cta" onclick="showScreen('register')">Jetzt kostenlos registrieren</button>
+    </div>
+    <div class="trust-bar">
+        <span>Vertrauen von: <strong>Lindner Group</strong></span>
+        <span><strong>Nutz GmbH</strong></span>
+        <span><strong>Elomech</strong></span>
+        <span><strong>Hoffrogge</strong></span>
+    </div>
+</div>
+
+<!-- ============ SCREEN: REGISTRATION ============ -->
+<div class="screen" id="screen-register">
+    <div class="reg-container">
+        <div class="reg-card">
+            <h2>Kostenlos registrieren</h2>
+            <p class="desc">In unter 2 Minuten. Sofort passende Projekte sehen.</p>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>Vorname <span class="req">*</span></label>
+                    <input type="text" id="regFirst" placeholder="Max">
+                    <div class="err">Pflichtfeld</div>
+                </div>
+                <div class="field">
+                    <label>Nachname <span class="req">*</span></label>
+                    <input type="text" id="regLast" placeholder="Mustermann">
+                    <div class="err">Pflichtfeld</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>E-Mail <span class="req">*</span></label>
+                <input type="email" id="regEmail" placeholder="max@mustermann-bau.de">
+                <div class="err">Bitte gültige E-Mail eingeben</div>
+            </div>
+            <div class="field">
+                <label>Telefon <span class="req">*</span></label>
+                <input type="tel" id="regPhone" placeholder="+49 170 1234567">
+                <div class="err">Pflichtfeld</div>
+            </div>
+            <div class="field">
+                <label>PLZ / Standort <span class="req">*</span></label>
+                <input type="text" id="regPLZ" placeholder="80331 München">
+                <div class="err">Pflichtfeld</div>
+            </div>
+
+            <div class="field">
+                <label>Gewerke <span class="req">*</span></label>
+                <div class="gewerk-grid" id="gewerkGrid">
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Rohbau</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Trockenbau</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Elektro</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">SHK</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Maler</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Fliesen</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Dachdecker</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Zimmerer</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Tiefbau</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Gerüstbau</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Estrich</div>
+                    <div class="gewerk-chip" onclick="toggleChip(this)">Abbruch</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Maximale Entfernung: <strong id="distVal">50 km</strong></label>
+                <div class="slider-container">
+                    <input type="range" min="10" max="200" value="50" id="distSlider" oninput="document.getElementById('distVal').textContent=this.value+' km'">
+                </div>
+            </div>
+
+            <div class="consent-box">
+                <label>
+                    <input type="checkbox" id="regConsent">
+                    <span>Ich stimme der Verarbeitung meiner Daten gemäß der <strong>Datenschutzrichtlinie</strong> zu und möchte CoCrafter für B2B-Zwecke nutzen.</span>
+                </label>
+            </div>
+
+            <button class="btn-primary" onclick="submitRegistration()">Registrieren & Projekte sehen</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ SCREEN: SUB DASHBOARD ============ -->
+<div class="screen" id="screen-dashboard">
+    <div class="dash-layout">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h4>Menu</h4>
+                <div class="sidebar-item active" onclick="showDashTab('projects')">
+                    <span class="icon">&#128204;</span> Projekte finden
+                    <span class="badge" id="projectCount">12</span>
+                </div>
+                <div class="sidebar-item" onclick="showDashTab('profile')">
+                    <span class="icon">&#128100;</span> Mein Profil
+                </div>
+                <div class="sidebar-item" onclick="showDashTab('applications')">
+                    <span class="icon">&#128233;</span> Bewerbungen
+                    <span class="badge" style="background:var(--text-muted)">0</span>
+                </div>
+                <div class="sidebar-item" onclick="showDashTab('docs')">
+                    <span class="icon">&#128196;</span> Nachweise
+                </div>
+            </div>
+        </div>
+        <div class="dash-main">
+            <!-- Profile completion banner -->
+            <div class="profile-banner" id="profileBanner">
+                <div class="profile-progress-ring">
+                    <svg width="70" height="70">
+                        <circle cx="35" cy="35" r="30" stroke="#eee" stroke-width="5" fill="none"/>
+                        <circle cx="35" cy="35" r="30" stroke="var(--orange)" stroke-width="5" fill="none"
+                            stroke-dasharray="188" stroke-dashoffset="150" stroke-linecap="round" id="progressCircle"/>
+                    </svg>
+                    <div class="pct" id="pctText">20%</div>
+                </div>
+                <div class="profile-banner-text">
+                    <h3>Profil vervollständigen</h3>
+                    <p>Fülle dein Profil aus um Details zu Projekten zu sehen und dich zu bewerben.</p>
+                </div>
+                <button class="btn-fill" onclick="openProfileModal()">Profil ausfüllen</button>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="dashTab-projects">
+                <div class="dash-header">
+                    <h2>Passende Projekte <span style="color:var(--orange)">(12)</span></h2>
+                </div>
+                <div class="project-grid" id="projectGrid"></div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="dashTab-profile" style="display:none;"></div>
+            <!-- Applications Tab -->
+            <div id="dashTab-applications" style="display:none;">
+                <h2>Deine Bewerbungen</h2>
+                <p style="color:var(--text-muted);margin-top:12px;">Noch keine Bewerbungen. Bewirb dich auf Projekte um loszulegen!</p>
+            </div>
+            <!-- Docs Tab -->
+            <div id="dashTab-docs" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ SCREEN: ADMIN DASHBOARD ============ -->
+<div class="screen" id="screen-admin">
+    <div style="padding:28px 32px;max-width:1200px;margin:0 auto;">
+        <div class="admin-stat-grid">
+            <div class="admin-stat orange"><div class="num">24</div><div class="label">Neue Registrierungen</div></div>
+            <div class="admin-stat yellow"><div class="num">18</div><div class="label">Profil unvollständig</div></div>
+            <div class="admin-stat green"><div class="num">6</div><div class="label">Bereit zur Freigabe</div></div>
+            <div class="admin-stat blue"><div class="num">3</div><div class="label">Neue Bewerbungen</div></div>
+        </div>
+
+        <div class="admin-card">
+            <h3>Subunternehmer Registrierungen</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Sub</th>
+                        <th>Gewerk</th>
+                        <th>Standort</th>
+                        <th>Profil</th>
+                        <th>Status</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Müller Elektro GmbH</strong><br><span style="color:var(--text-muted);font-size:11px;">vor 2 Stunden</span></td>
+                        <td><span class="chip" style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:11px;">Elektro</span></td>
+                        <td>München</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:95%;background:var(--green);"></div></div> 95%</td>
+                        <td><span class="status-badge ready">Bereit</span></td>
+                        <td>
+                            <button class="btn-sm green" onclick="alert('Sub freigegeben!')">Freigeben</button>
+                            <button class="btn-sm blue" onclick="alert('Profil wird angezeigt')">Ansehen</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Schmidt Trockenbau</strong><br><span style="color:var(--text-muted);font-size:11px;">vor 5 Stunden</span></td>
+                        <td><span class="chip" style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:11px;">Trockenbau</span></td>
+                        <td>Berlin</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:70%;background:var(--yellow);"></div></div> 70%</td>
+                        <td><span class="status-badge incomplete">Unvollständig</span></td>
+                        <td>
+                            <button class="btn-sm blue" onclick="alert('Nudge gesendet!')">Nudge senden</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Weber Rohbau KG</strong><br><span style="color:var(--text-muted);font-size:11px;">vor 1 Tag</span></td>
+                        <td><span class="chip" style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:11px;">Rohbau</span></td>
+                        <td>Hamburg</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:100%;background:var(--green);"></div></div> 100%</td>
+                        <td><span class="status-badge ready">Bereit</span></td>
+                        <td>
+                            <button class="btn-sm green" onclick="alert('Sub freigegeben!')">Freigeben</button>
+                            <button class="btn-sm blue" onclick="alert('Profil wird angezeigt')">Ansehen</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Neumann Maler</strong><br><span style="color:var(--text-muted);font-size:11px;">vor 1 Tag</span></td>
+                        <td><span class="chip" style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:11px;">Maler</span></td>
+                        <td>Köln</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:30%;background:var(--red);"></div></div> 30%</td>
+                        <td><span class="status-badge new">Neu</span></td>
+                        <td>
+                            <button class="btn-sm blue" onclick="alert('Nudge gesendet!')">Nudge senden</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fischer SHK GmbH</strong><br><span style="color:var(--text-muted);font-size:11px;">vor 2 Tagen</span></td>
+                        <td><span class="chip" style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:11px;">SHK</span></td>
+                        <td>Stuttgart</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:85%;background:var(--green);"></div></div> 85%</td>
+                        <td><span class="status-badge ready">Bereit</span></td>
+                        <td>
+                            <button class="btn-sm green" onclick="alert('Sub freigegeben!')">Freigeben</button>
+                            <button class="btn-sm blue" onclick="alert('Profil wird angezeigt')">Ansehen</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-card">
+            <h3>Neue Bewerbungen</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr><th>Sub</th><th>Projekt</th><th>Auftraggeber</th><th>Profil</th><th>Aktion</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Müller Elektro GmbH</strong></td>
+                        <td>Neubau Bürogebäude Theresienhöhe</td>
+                        <td>Lindner Group</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:95%;background:var(--green);"></div></div> 95%</td>
+                        <td>
+                            <button class="btn-sm green" onclick="alert('Bewerbung genehmigt & an AG weitergeleitet!')">Genehmigen</button>
+                            <button class="btn-sm red" onclick="alert('Bewerbung abgelehnt')">Ablehnen</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Weber Rohbau KG</strong></td>
+                        <td>Sanierung Altbau Eppendorf</td>
+                        <td>Nutz GmbH</td>
+                        <td><div class="completeness-bar"><div class="fill" style="width:100%;background:var(--green);"></div></div> 100%</td>
+                        <td>
+                            <button class="btn-sm green" onclick="alert('Bewerbung genehmigt & an AG weitergeleitet!')">Genehmigen</button>
+                            <button class="btn-sm red" onclick="alert('Bewerbung abgelehnt')">Ablehnen</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ============ PROFILE MODAL ============ -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Profil vervollständigen</h2>
+            <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="profile-step-tabs" id="profileTabs">
+                <div class="profile-step-tab active" data-tab="0" onclick="showProfileTab(0)">Firma</div>
+                <div class="profile-step-tab" data-tab="1" onclick="showProfileTab(1)">Details</div>
+                <div class="profile-step-tab" data-tab="2" onclick="showProfileTab(2)">Dokumente</div>
+                <div class="profile-step-tab" data-tab="3" onclick="showProfileTab(3)">Referenzen</div>
+            </div>
+
+            <!-- Tab 0: Firma -->
+            <div class="profile-tab-content" id="profTab0">
+                <div class="field">
+                    <label>Firmenname <span class="req">*</span></label>
+                    <input type="text" id="profCompany" placeholder="z.B. Mustermann Bau GmbH">
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Rechtsform <span class="req">*</span></label>
+                        <select id="profLegal"><option value="">Bitte wählen</option><option>GmbH</option><option>GmbH & Co. KG</option><option>UG</option><option>Einzelunternehmen</option><option>GbR</option></select>
+                    </div>
+                    <div class="field">
+                        <label>Gründungsjahr</label>
+                        <input type="text" id="profYear" placeholder="2015">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Mitarbeiter <span class="req">*</span></label>
+                        <select id="profMA"><option value="">Bitte wählen</option><option>1-5</option><option>6-20</option><option>21-50</option><option>51-100</option><option>100+</option></select>
+                    </div>
+                    <div class="field">
+                        <label>Umsatz (ca.)</label>
+                        <select id="profRevenue"><option value="">Bitte wählen</option><option>&lt; 500k</option><option>500k - 1 Mio</option><option>1 - 5 Mio</option><option>5 - 10 Mio</option><option>&gt; 10 Mio</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 1: Details -->
+            <div class="profile-tab-content" id="profTab1" style="display:none;">
+                <div class="field">
+                    <label>Über uns</label>
+                    <textarea style="width:100%;padding:12px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;min-height:100px;outline:none;" placeholder="Beschreiben Sie Ihr Unternehmen kurz..."></textarea>
+                </div>
+                <div class="field">
+                    <label>Webseite</label>
+                    <input type="url" placeholder="https://www.firma.de">
+                </div>
+                <div class="field">
+                    <label>Auftraggeber-Referenzen</label>
+                    <input type="text" placeholder="z.B. Lindner Group, Nutz GmbH">
+                </div>
+            </div>
+
+            <!-- Tab 2: Dokumente -->
+            <div class="profile-tab-content" id="profTab2" style="display:none;">
+                <p style="font-size:13px;color:var(--text-light);margin-bottom:16px;">Lade die folgenden Dokumente hoch um dein Profil zu verifizieren.</p>
+                <div class="field">
+                    <label>Gewerbeanmeldung / Handelsregister <span class="req">*</span></label>
+                    <div class="upload-area" onclick="simulateUpload('doc1')">
+                        <div class="icon">&#128206;</div>
+                        <p>Datei hier ablegen oder <strong>klicken</strong></p>
+                    </div>
+                    <div id="doc1-file"></div>
+                </div>
+                <div class="field">
+                    <label>Freistellungsbescheinigung</label>
+                    <div class="upload-area" onclick="simulateUpload('doc2')">
+                        <div class="icon">&#128206;</div>
+                        <p>Datei hier ablegen oder <strong>klicken</strong></p>
+                    </div>
+                    <div id="doc2-file"></div>
+                </div>
+                <div class="field">
+                    <label>Betriebshaftpflicht</label>
+                    <div class="upload-area" onclick="simulateUpload('doc3')">
+                        <div class="icon">&#128206;</div>
+                        <p>Datei hier ablegen oder <strong>klicken</strong></p>
+                    </div>
+                    <div id="doc3-file"></div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Referenzen -->
+            <div class="profile-tab-content" id="profTab3" style="display:none;">
+                <p style="font-size:13px;color:var(--text-light);margin-bottom:16px;">Füge Referenzprojekte hinzu um dein Profil zu stärken.</p>
+                <div class="field">
+                    <label>Projektname</label>
+                    <input type="text" placeholder="z.B. Neubau Wohnanlage Sendling">
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Auftraggeber</label>
+                        <input type="text" placeholder="z.B. Lindner Group">
+                    </div>
+                    <div class="field">
+                        <label>Zeitraum</label>
+                        <input type="text" placeholder="z.B. 2024-2025">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Bilder hochladen</label>
+                    <div class="upload-area" onclick="simulateUpload('ref1')">
+                        <div class="icon">&#128247;</div>
+                        <p>Projektbilder hier ablegen oder <strong>klicken</strong></p>
+                    </div>
+                    <div id="ref1-file"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeProfileModal()">Später</button>
+            <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="saveProfile()">Speichern & Weiter</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ APPLY MODAL ============ -->
+<div class="modal-overlay" id="applyModal">
+    <div class="modal" style="max-width:500px;">
+        <div class="modal-header">
+            <h2 id="applyTitle">Bewerbung</h2>
+            <button class="modal-close" onclick="closeApplyModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="applyBody"></div>
+        <div class="modal-footer" id="applyFooter"></div>
+    </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast">
+    <div class="toast-icon">&#128276;</div>
+    <div class="toast-text" id="toastText"></div>
+    <button class="toast-close" onclick="hideToast()">&times;</button>
+</div>
+
+<script>
+    // === STATE ===
+    let currentScreen = 'landing';
+    let isAdmin = false;
+    let profileCompletion = 20;
+    let profileData = { company: false, details: false, docs: false, refs: false };
+    let currentProfileTab = 0;
+    let uploads = {};
+
+    const projects = [
+        { title: 'Neubau Bürogebäude Theresienhöhe', loc: 'München', gewerk: 'Elektro', budget: '120.000 - 180.000 €', time: 'Apr 2026 - Sep 2026', tags: ['Elektroinstallation', 'KNX'], hot: true },
+        { title: 'Sanierung Altbau Eppendorf', loc: 'Hamburg', gewerk: 'Rohbau', budget: '80.000 - 120.000 €', time: 'Mai 2026 - Aug 2026', tags: ['Mauerwerk', 'Beton'] },
+        { title: 'Wohnanlage Am Westpark', loc: 'München', gewerk: 'Trockenbau', budget: '45.000 - 70.000 €', time: 'Jun 2026 - Okt 2026', tags: ['Trockenbau', 'Akustik'] },
+        { title: 'Schulzentrum Neuperlach', loc: 'München', gewerk: 'SHK', budget: '200.000 - 300.000 €', time: 'Mär 2026 - Dez 2026', tags: ['Heizung', 'Sanitär'], hot: true },
+        { title: 'Loftausbau Kreuzberg', loc: 'Berlin', gewerk: 'Maler', budget: '25.000 - 40.000 €', time: 'Mai 2026 - Jul 2026', tags: ['Malerarbeiten', 'Spachtel'] },
+        { title: 'Logistikzentrum Garching', loc: 'München', gewerk: 'Estrich', budget: '60.000 - 90.000 €', time: 'Apr 2026 - Jul 2026', tags: ['Estrich', 'Industrieboden'] },
+        { title: 'Kita Umbau Schwabing', loc: 'München', gewerk: 'Fliesen', budget: '15.000 - 25.000 €', time: 'Jul 2026 - Sep 2026', tags: ['Fliesen', 'Naturstein'] },
+        { title: 'Dachsanierung Villa Bogenhausen', loc: 'München', gewerk: 'Dachdecker', budget: '55.000 - 80.000 €', time: 'Jun 2026 - Aug 2026', tags: ['Steildach', 'Dämmung'] },
+        { title: 'Tiefgarage Lehel', loc: 'München', gewerk: 'Tiefbau', budget: '300.000 - 450.000 €', time: 'Mär 2026 - Nov 2026', tags: ['Erdarbeiten', 'Beton'], hot: true },
+        { title: 'Fassadengerüst Maxvorstadt', loc: 'München', gewerk: 'Gerüstbau', budget: '35.000 - 50.000 €', time: 'Mai 2026 - Jul 2026', tags: ['Fassadengerüst'] },
+        { title: 'Holzbau Einfamilienhaus Starnberg', loc: 'Starnberg', gewerk: 'Zimmerer', budget: '90.000 - 140.000 €', time: 'Apr 2026 - Okt 2026', tags: ['Holzbau', 'Dachstuhl'] },
+        { title: 'Rückbau Industriehalle Pasing', loc: 'München', gewerk: 'Abbruch', budget: '40.000 - 65.000 €', time: 'Jun 2026 - Aug 2026', tags: ['Abbruch', 'Entsorgung'] },
+    ];
+
+    // === SCREEN MANAGEMENT ===
+    function showScreen(name) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById('screen-' + name);
+        if (el) el.classList.add('active');
+        currentScreen = name;
+        updateNav();
+        if (name === 'dashboard') {
+            renderProjects();
+            setTimeout(() => showNudge(), 2000);
+        }
+    }
+
+    function updateNav() {
+        const links = document.getElementById('navLinks');
+        const toggle = document.getElementById('viewToggle');
+
+        if (currentScreen === 'landing' || currentScreen === 'register') {
+            links.innerHTML = '<a href="#" class="active" onclick="showScreen(\'landing\')">Start</a>';
+            toggle.style.display = 'none';
+        } else {
+            toggle.style.display = 'block';
+            if (isAdmin) {
+                links.innerHTML = '<a href="#" class="active" onclick="showScreen(\'admin\')">Dashboard</a>';
+                toggle.textContent = 'Sub-Ansicht';
+                toggle.classList.add('admin-active');
+            } else {
+                links.innerHTML = `
+                    <a href="#" class="active" onclick="showDashTab('projects')">Projekte</a>
+                    <a href="#" onclick="showDashTab('profile')">Profil</a>
+                    <a href="#" onclick="showDashTab('applications')">Bewerbungen</a>
+                `;
+                toggle.textContent = 'Admin-Ansicht';
+                toggle.classList.remove('admin-active');
+            }
+        }
+    }
+
+    function toggleView() {
+        isAdmin = !isAdmin;
+        showScreen(isAdmin ? 'admin' : 'dashboard');
+    }
+
+    // === REGISTRATION ===
+    function submitRegistration() {
+        const fields = ['regFirst', 'regLast', 'regEmail', 'regPhone', 'regPLZ'];
+        let valid = true;
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            const err = el.parentElement.querySelector('.err');
+            if (!el.value.trim()) {
+                el.classList.add('invalid'); if (err) err.style.display = 'block'; valid = false;
+            } else {
+                el.classList.remove('invalid'); if (err) err.style.display = 'none';
+            }
+        });
+        const selected = document.querySelectorAll('.gewerk-chip.selected');
+        if (selected.length === 0) { valid = false; alert('Bitte mindestens ein Gewerk wählen.'); }
+        if (!document.getElementById('regConsent').checked) { valid = false; alert('Bitte Einwilligung bestätigen.'); }
+        if (!valid) return;
+        showScreen('dashboard');
+    }
+
+    function toggleChip(el) { el.classList.toggle('selected'); }
+
+    // === DASHBOARD TABS ===
+    function showDashTab(tab) {
+        ['projects', 'profile', 'applications', 'docs'].forEach(t => {
+            const el = document.getElementById('dashTab-' + t);
+            if (el) el.style.display = t === tab ? 'block' : 'none';
+        });
+        document.querySelectorAll('.sidebar-item').forEach((s, i) => {
+            s.classList.toggle('active', ['projects','profile','applications','docs'][i] === tab);
+        });
+    }
+
+    // === PROJECTS ===
+    function renderProjects() {
+        const grid = document.getElementById('projectGrid');
+        const isLocked = profileCompletion < 60;
+        grid.innerHTML = projects.map((p, i) => {
+            const blurred = isLocked && i > 1;
+            const colors = ['#e8d5b7','#b7d5e8','#d5e8b7','#e8b7d5','#b7e8d5','#d5b7e8'];
+            return `
+            <div class="project-card ${blurred ? 'blurred' : ''}" style="position:relative;" onclick="${blurred ? '' : `openApplyModal(${i})`}">
+                <div class="project-card-img" style="background:${colors[i % 6]}">
+                    ${p.hot ? '<div class="tag">Hot</div>' : ''}
+                </div>
+                <div class="project-card-body">
+                    <h3>${blurred ? 'Projekt in deiner Nähe' : p.title}</h3>
+                    <div class="meta">${blurred ? '● ● ●' : p.loc + ' · ' + p.time}</div>
+                    <div class="chips">${p.tags.map(t => `<span class="chip">${blurred ? '●●●' : t}</span>`).join('')}</div>
+                    <div class="budget">${blurred ? '●●● €' : p.budget}</div>
+                </div>
+                ${blurred ? `<div class="lock-overlay">
+                    <div class="lock-icon">&#128274;</div>
+                    <p>Vervollständige dein Profil um Projektdetails zu sehen</p>
+                    <button class="btn-unlock" onclick="event.stopPropagation();openProfileModal()">Profil ausfüllen</button>
+                </div>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    // === PROFILE MODAL ===
+    function openProfileModal() { document.getElementById('profileModal').classList.add('visible'); }
+    function closeProfileModal() { document.getElementById('profileModal').classList.remove('visible'); }
+
+    function showProfileTab(i) {
+        document.querySelectorAll('.profile-tab-content').forEach((t, idx) => t.style.display = idx === i ? 'block' : 'none');
+        document.querySelectorAll('.profile-step-tab').forEach((t, idx) => {
+            t.classList.remove('active');
+            if (idx === i) t.classList.add('active');
+        });
+        currentProfileTab = i;
+    }
+
+    function saveProfile() {
+        const tabs = ['company', 'details', 'docs', 'refs'];
+        profileData[tabs[currentProfileTab]] = true;
+
+        // Mark tab as done
+        const tabEl = document.querySelectorAll('.profile-step-tab')[currentProfileTab];
+        tabEl.classList.add('done');
+
+        // Calculate completion
+        let done = Object.values(profileData).filter(Boolean).length;
+        profileCompletion = 20 + (done * 20);
+        updateProfileBanner();
+
+        // Go to next tab or close
+        if (currentProfileTab < 3) {
+            showProfileTab(currentProfileTab + 1);
+        } else {
+            closeProfileModal();
+            renderProjects();
+            if (profileCompletion >= 80) {
+                showToast('Dein Profil ist fast komplett! Du kannst dich jetzt auf Projekte bewerben.');
+            }
+        }
+    }
+
+    function updateProfileBanner() {
+        const circle = document.getElementById('progressCircle');
+        const pct = document.getElementById('pctText');
+        const offset = 188 - (188 * profileCompletion / 100);
+        circle.setAttribute('stroke-dashoffset', offset);
+        pct.textContent = profileCompletion + '%';
+        if (profileCompletion >= 100) {
+            document.getElementById('profileBanner').style.background = 'linear-gradient(135deg, var(--green-light) 0%, #f0fdf4 100%)';
+            document.getElementById('profileBanner').style.borderColor = '#bbf7d0';
+            circle.setAttribute('stroke', 'var(--green)');
+            pct.style.color = 'var(--green)';
+        }
+        renderProjects();
+    }
+
+    function simulateUpload(id) {
+        uploads[id] = true;
+        document.getElementById(id + '-file').innerHTML = '<div class="uploaded-file"><span>&#9989; Dokument hochgeladen</span><span class="remove" onclick="this.parentElement.remove()">&#10005;</span></div>';
+    }
+
+    // === APPLY MODAL ===
+    function openApplyModal(i) {
+        if (profileCompletion < 60) {
+            openProfileModal();
+            return;
+        }
+        const p = projects[i];
+        document.getElementById('applyTitle').textContent = 'Bewerben: ' + p.title;
+
+        const checks = [
+            { label: 'Firmendaten', ok: profileData.company },
+            { label: 'Unternehmensbeschreibung', ok: profileData.details },
+            { label: 'Dokumente (Gewerbeanmeldung)', ok: profileData.docs },
+            { label: 'Referenzprojekte', ok: profileData.refs },
+        ];
+        const allOk = checks.every(c => c.ok);
+
+        document.getElementById('applyBody').innerHTML = `
+            <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;">
+                ${p.loc} · ${p.gewerk} · ${p.budget}
+            </p>
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">Profil-Check</h4>
+            <div class="completeness-checklist">
+                ${checks.map(c => `
+                    <div class="checklist-item">
+                        <div class="check ${c.ok ? 'ok' : 'missing'}">${c.ok ? '&#10003;' : '!'}</div>
+                        <span>${c.label}</span>
+                        ${!c.ok ? '<a href="#" onclick="event.preventDefault();closeApplyModal();openProfileModal();" style="margin-left:auto;color:var(--orange);font-size:12px;font-weight:600;">Ergänzen</a>' : ''}
+                    </div>
+                `).join('')}
+            </div>
+            ${allOk ? `
+                <div class="field" style="margin-top:16px;">
+                    <label>Nachricht an Auftraggeber (optional)</label>
+                    <textarea style="width:100%;padding:12px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;min-height:80px;outline:none;" placeholder="Kurze Nachricht warum ihr gut zum Projekt passt..."></textarea>
+                </div>
+            ` : `
+                <div style="background:var(--yellow-light);padding:12px;border-radius:8px;margin-top:12px;font-size:13px;color:var(--yellow);">
+                    <strong>Fehlende Angaben:</strong> Bitte ergänze die markierten Punkte um dich bewerben zu können.
+                </div>
+            `}
+        `;
+
+        document.getElementById('applyFooter').innerHTML = allOk
+            ? `<button class="btn-secondary" onclick="closeApplyModal()">Abbrechen</button>
+               <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="submitApplication()">Bewerbung absenden</button>`
+            : `<button class="btn-secondary" onclick="closeApplyModal()">Schließen</button>
+               <button class="btn-primary" style="width:auto;padding:12px 28px;" onclick="closeApplyModal();openProfileModal();">Profil vervollständigen</button>`;
+
+        document.getElementById('applyModal').classList.add('visible');
+    }
+
+    function closeApplyModal() { document.getElementById('applyModal').classList.remove('visible'); }
+
+    function submitApplication() {
+        closeApplyModal();
+        showToast('Bewerbung erfolgreich gesendet! Du bekommst eine Benachrichtigung sobald der Auftraggeber reagiert.');
+    }
+
+    // === NUDGE / TOAST ===
+    function showNudge() {
+        if (profileCompletion < 60) {
+            showToast('Du hast <strong>12 passende Projekte</strong> in deiner Nähe! Vervollständige dein Profil um alle Details zu sehen.');
+        }
+    }
+
+    function showToast(msg) {
+        document.getElementById('toastText').innerHTML = msg;
+        document.getElementById('toast').classList.add('visible');
+        setTimeout(hideToast, 8000);
+    }
+
+    function hideToast() { document.getElementById('toast').classList.remove('visible'); }
+</script>
+
+</body>
+</html>
